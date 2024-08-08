@@ -1,26 +1,35 @@
 <script setup>
-import { ref } from 'vue';
+import {ref, onMounted, onUnmounted} from 'vue';
+import socketService from '../services/socketService';
 
-const username = ref('User1');
 const newMessage = ref('');
 const messages = ref([]);
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
-    messages.value.push({
-      username: username.value,
-      text: newMessage.value
-    });
+    socketService.sendMessage(newMessage.value);
     newMessage.value = '';
   }
 };
+
+onMounted(() => {
+  socketService.connect();
+
+  socketService.onMessage((message) => {
+    messages.value.push(message);
+  });
+});
+
+onUnmounted(() => {
+  // Można dodać logikę rozłączania, jeśli jest potrzebna
+});
 </script>
 
 <template>
   <div class="chat-container">
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
-        <span class="username">{{ message.username }}:</span>
+        <span class="sender">{{ message.sender }}:</span>
         <span class="text">{{ message.text }}</span>
       </div>
     </div>
@@ -62,7 +71,7 @@ const sendMessage = () => {
   margin: 5px 0;
 }
 
-.username {
+.sender {
   font-weight: bold;
 }
 
