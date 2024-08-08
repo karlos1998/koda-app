@@ -1,0 +1,14 @@
+{
+    "name": "frontend-app",
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "serve": "vite preview"
+    },
+    "dependencies": {
+        "@vitejs/plugin-vue": "^5.1.2",
+        "vite": "^5.4.0",
+        "vue": "^3.0.0"
+    }
+}
