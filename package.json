@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@langchain/openai": "^0.2.5",
+    "@types/node": "^22.1.0",
+    "axios": "^1.7.3",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "langchain": "^0.2.12"
+  }
+}
