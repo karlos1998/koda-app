@@ -3,11 +3,13 @@ import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {AIService} from "../AI/AIService";
 import {SocketService} from "../socket/socketService";
 import {SerpapiService} from "../serpapi/serpapiService";
+import {FlightsService} from "../serpapi/flights/flightsService";
 
 export class ChatService {
 
     private aiService = new AIService();
     private serpapiService = new SerpapiService;
+    private flightsService = new FlightsService();
 
     public async receiveMessage(socket: Socket<DefaultEventsMap, DefaultEventsMap>, msg: string) {
         console.log('Message received: ', msg);
@@ -34,6 +36,8 @@ export class ChatService {
         socketService.sendMessage(`Dobrze, poszukajmy odpowiednich lotów:\nMiejsce odlotu: ${flyData.departureCity}\nCel podróży: ${flyData.arrivalCity}\n Data: ${flyData.date}`);
 
         const flights = await this.serpapiService.getFlights();
-        console.log(flights);
+
+        socketService.sendMessage(this.flightsService.formatBestFlights(flights));
+
     }
 }
