@@ -3,7 +3,9 @@ import { createOpenAIFnRunnable } from "langchain/chains/openai_functions";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { format } from 'date-fns';
+import * as dotenv from "dotenv";
 
+dotenv.config();
 export class AIService {
 
     private readonly model: ChatOpenAI;
@@ -45,8 +47,7 @@ export class AIService {
     }
 
     public async findFlyDataInMessage(message: string) {
-        const response: any = await this.findCitiesRunnable.invoke({ message });
-        console.log('findFlyDataInMessage:' , response)
+        return await this.findCitiesRunnable.invoke({ message });
     }
 }
 
