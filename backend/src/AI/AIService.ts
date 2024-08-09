@@ -47,7 +47,13 @@ export class AIService {
     }
 
     public async findFlyDataInMessage(message: string) {
-        return await this.findCitiesRunnable.invoke({ message });
+        return await this.findCitiesRunnable.invoke({ message }) as {
+            arrivalCity: string,
+            arrivalCityCode: string,
+            departureCity: string,
+            departureCityCode: string,
+            date: string
+        };
     }
 }
 

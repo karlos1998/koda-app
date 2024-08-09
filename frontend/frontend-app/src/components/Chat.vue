@@ -7,6 +7,11 @@ const messages = ref([]);
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
+    messages.value.push({
+      sender: 'you',
+      text: newMessage.value,
+    });
+
     socketService.sendMessage(newMessage.value);
     newMessage.value = '';
   }
@@ -73,6 +78,11 @@ onUnmounted(() => {
 
 .sender {
   font-weight: bold;
+}
+
+.text {
+  color:cadetblue;
+  white-space: pre-line;
 }
 
 .input-container {
