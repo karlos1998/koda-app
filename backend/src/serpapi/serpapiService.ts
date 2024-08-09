@@ -1,5 +1,6 @@
 
 import axios, { AxiosResponse, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
+import {SearchResult} from "./flights/interfaces/SearchResult.interface";
 export class SerpapiService {
 
     private client;
@@ -12,11 +13,11 @@ export class SerpapiService {
             }
         })
     }
-    private request(
+    private request<T>(
         engine: string,
         params: {[key: string]: any},
     ) {
-        return this.client.get('search', {
+        return this.client.get<T>('search', {
             params: {
                 engine,
                 ...params,
@@ -25,7 +26,7 @@ export class SerpapiService {
     }
 
     public async getFlights() {
-        return await this.request('google_flights', {
+        return await this.request<SearchResult>('google_flights', {
             departure_id: 'WAW',
             arrival_id: 'KRK',
             outbound_date: '2024-08-10',
