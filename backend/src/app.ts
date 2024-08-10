@@ -2,9 +2,15 @@ import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import {ChatController} from "./chat/chatController";
+import {PreFlightGuideScraper} from "./pre-flight-guide/preFlightGuideScraper";
+import PreFlightGuideData from "./pre-flight-guide/preFlightGuideData";
 
 const app = express();
 const port = 3000;
+
+(new PreFlightGuideScraper()).run().then(() => {
+  console.log(PreFlightGuideData.getInstance().getGuideSections());
+});
 
 const httpServer = createServer(app);
 
