@@ -1,12 +1,12 @@
 ### Przykładowy, testowy projekt dla KODA :)
 
-Aby skonfigurować projekt należy użyć przykładowego pliku env, w którym są skonfigurowane już moje klucze dla AI i SERP.
-
 Przejdź do katalogu projektu a następnie postępuj według podanych wskazówek
 
 ```
 cp backend/.env.example backend/.env
 ```
+
+W utworzonym pliku .env wpisz wymagane klucze API dla OpenAI + serpAPI
 
 ```
 npm run start
