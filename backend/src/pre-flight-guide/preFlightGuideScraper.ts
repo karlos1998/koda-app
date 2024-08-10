@@ -1,8 +1,14 @@
 import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import PreFlightGuideData from './preFlightGuideData';
+import {AIService} from "../AI/AIService";
+import {stripHtmlUsingRegex} from "../utils/stripHtmlUsingDOMParser";
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class PreFlightGuideScraper {
+
+    private aiService = new AIService();
     public async run() {
         try {
             const browser = await puppeteer.launch({
@@ -13,14 +19,13 @@ export class PreFlightGuideScraper {
                 waitUntil: 'networkidle2',
             });
 
-            const content = await page.content(); // Pobiera cały HTML strony
+            const content = await page.content();
 
-            // Sprawdzam, czy cheerio jest poprawnie załadowane
             if (!cheerio || typeof cheerio.load !== 'function') {
                 throw new Error("Cheerio is not loaded correctly");
             }
 
-            const $ = cheerio.load(content); // Poprawne użycie cheerio do załadowania zawartości strony
+            const $ = cheerio.load(content);
 
             const guideSections: { [key: string]: string } = {};
 
@@ -34,10 +39,26 @@ export class PreFlightGuideScraper {
                 }
             });
 
-            const guideData = PreFlightGuideData.getInstance();
-            guideData.setGuideSections(guideSections);
+            console.log('Pobieranie danych z poradnika przed odlotem....')
 
-            await browser.close(); // Zamknij przeglądarkę po zakończeniu pracy
+            const jsonData: {[key: string]: string} = {};
+
+            for(const key of Object.keys(guideSections)) {
+                console.log('Pobieranie informacji zakładki: ' + key);
+                const val = stripHtmlUsingRegex( guideSections[key] ).slice(0, 4000);
+                const response = await this.aiService.convertPreFlightInfo(JSON.stringify({
+                    [key]: val,
+                }));
+
+                jsonData[response.key] = response.description;
+            }
+
+            console.log('zapisywanie danych.');
+
+            const guideData = PreFlightGuideData.getInstance();
+            guideData.setGuideSections(jsonData);
+
+            await browser.close();
 
             return guideSections;
         } catch (error) {

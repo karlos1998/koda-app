@@ -8,9 +8,7 @@ import PreFlightGuideData from "./pre-flight-guide/preFlightGuideData";
 const app = express();
 const port = 3000;
 
-(new PreFlightGuideScraper()).run().then(() => {
-  console.log(PreFlightGuideData.getInstance().getGuideSections());
-});
+PreFlightGuideData.getInstance().loadData().then(() => {});
 
 const httpServer = createServer(app);
 
