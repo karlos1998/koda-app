@@ -4,8 +4,8 @@ import socketService from '../services/socketService';
 
 const newMessage = ref('Cześć, znajdź mi proszę najbliższy lot do Krakowa z Warszawy');
 const messages = ref([]);
-const messageQueue = ref([]);  // Kolejka wiadomości
-let isTyping = ref(false);  // Flaga określająca, czy obecnie jest pisana jakaś wiadomość
+const messageQueue = ref([]);
+let isTyping = ref(false);
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
@@ -16,13 +16,13 @@ const sendMessage = () => {
 
     socketService.sendMessage(newMessage.value);
     newMessage.value = '';
-    scrollToBottom();  // Przewiń po wysłaniu wiadomości
+    scrollToBottom();
   }
 };
 
 const processQueue = () => {
   if (messageQueue.value.length > 0 && !isTyping.value) {
-    const nextMessage = messageQueue.value.shift();  // Pobierz pierwszą wiadomość z kolejki
+    const nextMessage = messageQueue.value.shift();
     addMessageWithTypingEffect(nextMessage);
   }
 };
@@ -35,11 +35,10 @@ const scrollToBottom = () => {
 const addMessageWithTypingEffect = (message) => {
   const fullText = message.text;
   let currentText = '';
-  const typingSpeed = 2; // Szybkość pisania (ms)
+  const typingSpeed = 2;
 
-  isTyping.value = true;  // Ustaw flagę, że obecnie jest pisana wiadomość
+  isTyping.value = true;
 
-  // Dodaj wiadomość z pustym tekstem
   const tempMessage = ref({ sender: message.sender, text: '' });
   messages.value.push(tempMessage.value);
 
@@ -47,11 +46,11 @@ const addMessageWithTypingEffect = (message) => {
     if (currentText.length < fullText.length) {
       currentText += fullText[currentText.length];
       tempMessage.value.text = currentText;
-      scrollToBottom();  // Przewiń po każdej aktualizacji tekstu
+      scrollToBottom();
     } else {
       clearInterval(interval);
-      isTyping.value = false;  // Flaga, że pisanie wiadomości się zakończyło
-      processQueue();  // Przetwórz kolejną wiadomość z kolejki
+      isTyping.value = false;
+      processQueue();
     }
   }, typingSpeed);
 };
@@ -60,17 +59,21 @@ onMounted(async () => {
   socketService.connect();
 
   socketService.onMessage((message) => {
-    messageQueue.value.push(message);  // Dodaj wiadomość do kolejki
-    processQueue();  // Spróbuj przetworzyć kolejkę
+    messageQueue.value.push(message);
+    processQueue();
   });
 
   await nextTick();
   document.getElementById('message-input').focus();
-  scrollToBottom();  // Przewiń na dół po pierwszym załadowaniu
+  scrollToBottom();
 });
 
-onUnmounted(() => {
-  // Można dodać logikę rozłączania, jeśli jest potrzebna
+onMounted(() => {
+  messageQueue.value.push({
+    sender: 'engine',
+    text: 'Witaj, jestem chatbotem wyszukującym loty poprzez serpapi. Jak mogę Ci pomóc?',
+  });
+  processQueue();
 });
 </script>
 
