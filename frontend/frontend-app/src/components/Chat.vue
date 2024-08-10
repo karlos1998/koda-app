@@ -1,9 +1,11 @@
 <script setup>
-import {ref, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import socketService from '../services/socketService';
 
-const newMessage = ref('');
+const newMessage = ref('Cześć, znajdź mi proszę najbliższy lot do Krakowa z Warszawy');
 const messages = ref([]);
+const messageQueue = ref([]);  // Kolejka wiadomości
+let isTyping = ref(false);  // Flaga określająca, czy obecnie jest pisana jakaś wiadomość
 
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
@@ -14,15 +16,57 @@ const sendMessage = () => {
 
     socketService.sendMessage(newMessage.value);
     newMessage.value = '';
+    scrollToBottom();  // Przewiń po wysłaniu wiadomości
   }
 };
 
-onMounted(() => {
+const processQueue = () => {
+  if (messageQueue.value.length > 0 && !isTyping.value) {
+    const nextMessage = messageQueue.value.shift();  // Pobierz pierwszą wiadomość z kolejki
+    addMessageWithTypingEffect(nextMessage);
+  }
+};
+
+const scrollToBottom = () => {
+  const messageContainer = document.querySelector('.messages');
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+};
+
+const addMessageWithTypingEffect = (message) => {
+  const fullText = message.text;
+  let currentText = '';
+  const typingSpeed = 2; // Szybkość pisania (ms)
+
+  isTyping.value = true;  // Ustaw flagę, że obecnie jest pisana wiadomość
+
+  // Dodaj wiadomość z pustym tekstem
+  const tempMessage = ref({ sender: message.sender, text: '' });
+  messages.value.push(tempMessage.value);
+
+  const interval = setInterval(() => {
+    if (currentText.length < fullText.length) {
+      currentText += fullText[currentText.length];
+      tempMessage.value.text = currentText;
+      scrollToBottom();  // Przewiń po każdej aktualizacji tekstu
+    } else {
+      clearInterval(interval);
+      isTyping.value = false;  // Flaga, że pisanie wiadomości się zakończyło
+      processQueue();  // Przetwórz kolejną wiadomość z kolejki
+    }
+  }, typingSpeed);
+};
+
+onMounted(async () => {
   socketService.connect();
 
   socketService.onMessage((message) => {
-    messages.value.push(message);
+    messageQueue.value.push(message);  // Dodaj wiadomość do kolejki
+    processQueue();  // Spróbuj przetworzyć kolejkę
   });
+
+  await nextTick();
+  document.getElementById('message-input').focus();
+  scrollToBottom();  // Przewiń na dół po pierwszym załadowaniu
 });
 
 onUnmounted(() => {
@@ -30,16 +74,23 @@ onUnmounted(() => {
 });
 </script>
 
+
+
 <template>
   <div class="chat-container">
     <div class="messages">
-      <div v-for="(message, index) in messages" :key="index" class="message">
-        <span class="sender">{{ message.sender }}:</span>
+      <div
+          v-for="(message, index) in messages"
+          :key="index"
+          :class="{'message-you': message.sender === 'you', 'message-engine': message.sender === 'engine'}"
+          class="message"
+      >
         <span class="text">{{ message.text }}</span>
       </div>
     </div>
     <div class="input-container">
       <input
+          id="message-input"
           v-model="newMessage"
           @keyup.enter="sendMessage"
           placeholder="Type a message..."
@@ -53,8 +104,9 @@ onUnmounted(() => {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-width: 600px;
+  height: 90vh; /* 90% wysokości ekranu */
+  max-height: 600px;
+  max-width: 800px;
   margin: auto;
   border: 1px solid #ccc;
   padding: 10px;
@@ -74,14 +126,27 @@ onUnmounted(() => {
 
 .message {
   margin: 5px 0;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 70%;
 }
 
-.sender {
-  font-weight: bold;
+.message-you {
+  background-color: #d1f5d3;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.message-engine {
+  background-color: #e1e5ea;
+  align-self: flex-start;
+  margin-right: auto;
+  margin-left: 10px;
 }
 
 .text {
-  color:cadetblue;
+  color: #333;
   white-space: pre-line;
 }
 
