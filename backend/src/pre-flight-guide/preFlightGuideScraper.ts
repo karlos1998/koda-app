@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import PreFlightGuideData from './preFlightGuideData';
 import {AIService} from "../AI/AIService";
-import {stripHtmlUsingRegex} from "../utils/stripHtmlUsingDOMParser";
+import {stripHtml} from "../utils/stripHtml";
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -45,7 +45,7 @@ export class PreFlightGuideScraper {
 
             for(const key of Object.keys(guideSections)) {
                 console.log('Pobieranie informacji zakładki: ' + key);
-                const val = stripHtmlUsingRegex( guideSections[key] ).slice(0, 4000);
+                const val = stripHtml( guideSections[key] ).slice(0, 4000);
                 const response = await this.aiService.convertPreFlightInfo(JSON.stringify({
                     [key]: val,
                 }));
