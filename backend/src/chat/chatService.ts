@@ -19,17 +19,20 @@ export class ChatService {
 
         // socketService.sendMessage('Zobaczmy co da się zrobić...');
         //
-        const flyData = await this.aiService.findFlyDataInMessage(msg);
-
         const preFlightInfo = await this.aiService.findPreFlightInfoInMessage(msg);
 
         if(preFlightInfo.topic && preFlightGuideData.getInstance().hasKey(preFlightInfo.topic)) {
             socketService.sendMessage(preFlightGuideData.getInstance().getKeyData(preFlightInfo.topic));
         } else {
+            const flyData = await this.aiService.findFlyDataInMessage(msg);
             if (flyData.departureCity && flyData.arrivalCity && flyData.date) {
                 socketService.sendMessage(`Dobrze, poszukajmy odpowiednich lotów:\nMiejsce odlotu: ${flyData.departureCity}\nCel podróży: ${flyData.arrivalCity}\n Data: ${flyData.date}`);
-                const flights = await this.serpapiService.getFlights();
-                socketService.sendMessage(this.flightsService.formatBestFlights(flights));
+                try {
+                    const flights = await this.serpapiService.getFlights(flyData);
+                    socketService.sendMessage(this.flightsService.formatBestFlights(flights));
+                } catch {
+                    socketService.sendMessage('Niestety, nie udało się wyszukać lotu w tych kryteriach');
+                }
             } else {
                 socketService.sendMessage('Proszę, sprecyzuj swoje zapytanie.');
             }

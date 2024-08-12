@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import socketService from '../services/socketService';
 
-const newMessage = ref('Cześć, znajdź mi proszę najbliższy lot do Krakowa z Warszawy');
+const newMessage = ref('Cześć, znajdź mi proszę najbliższy lot do Krakowa z Barcelony');
 const messages = ref([]);
 const messageQueue = ref([]);
 let isTyping = ref(false);

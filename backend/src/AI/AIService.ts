@@ -5,6 +5,7 @@ import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { format } from 'date-fns';
 import * as dotenv from "dotenv";
 import preFlightGuideData from "../pre-flight-guide/preFlightGuideData";
+import {FlyDataDTO} from "./DTOs/FlyDataDTO";
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ export class AIService {
             functions: [
                 {
                     name: "find_arrival_city_and_departure_city",
-                    description: "Check if the message requests flight details between two cities on a specific date",
+                    description: "Check if the message asks for flight details between two cities on a specific date. If the user is looking for the nearest date, remember that today's date is: " + format(new Date(), 'yyyy-MM-dd'),
                     parameters: {
                         type: "object",
                         properties: {
@@ -100,13 +101,7 @@ export class AIService {
     }
 
     public async findFlyDataInMessage(message: string) {
-        return await this.findCitiesRunnable.invoke({ message }) as {
-            arrivalCity: string,
-            arrivalCityCode: string,
-            departureCity: string,
-            departureCityCode: string,
-            date: string
-        };
+        return await this.findCitiesRunnable.invoke({ message }) as FlyDataDTO;
     }
 
     public async convertPreFlightInfo(message: string) {
