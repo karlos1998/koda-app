@@ -60,7 +60,7 @@ export class AIService {
                         type: "object",
                         properties: {
                             key: { type: "string", description: "key which was in Polish. write it as legible"},
-                            description: { type: "string", description: "The description, which is from the json value, should be a shortened description of 2-3 sentences, very simple for the user to understand. remember to remove whitespace and other unnecessary things" },
+                            description: { type: "string", description: "The description that comes from the json value should be a shortened description of 2-3 sentences, very easy for the user to understand. Remember to remove spaces and other unnecessary things. Please shorten this description to a maximum of 50 words." },
                         },
                         required: ["key", "description"]
                     }

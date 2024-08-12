@@ -39,6 +39,8 @@ export class PreFlightGuideScraper {
                 }
             });
 
+            await browser.close();
+
             console.log('Pobieranie danych z poradnika przed odlotem....')
 
             const jsonData: {[key: string]: string} = {};
@@ -57,8 +59,6 @@ export class PreFlightGuideScraper {
 
             const guideData = PreFlightGuideData.getInstance();
             guideData.setGuideSections(jsonData);
-
-            await browser.close();
 
             return guideSections;
         } catch (error) {
